@@ -46,6 +46,9 @@
 ###   18-Jun-2024: 2.2.14  Changed the name of script heating_xyz_logfile_entry to just logfile_entry
 ###   23-Sep-2024: 2.2.15  Corrected message when window is open. 
 ###
+### GdM
+###   15-Apr-25 | Lorenzo B.  | Different rooms with different temperatures in single calendar
+###
 ### OVERVIEW
 ### The main action steps are as follows.
 ### The numbering correspnds to that used by the system log for error messages.
@@ -63,7 +66,7 @@
 ### ------------------------------------------------------------------------------------------------
 
 blueprint:
-  name: "Heating X2 Test"
+  name: "Heating X2 GdM"
   description: Controls one or more thermostats from a calendar, allows temporary manual override, and optionally adjusts thermostat if a door or window is opened, or if the room is unoccupied for a while.
   domain: automation
 
@@ -120,6 +123,14 @@ blueprint:
         entity:
           filter:
             domain: calendar
+
+    ####### GdM
+    room_calendar_separator:
+      name: HELPER - Separator
+      description: The global parameter (helper) used to identify specific temperature in calendar description. Default is "#"
+      selector:
+        text:
+      default: '#'
 
     manual_temperature:
       name: HELPER -  Manual temperature (mandatory)
@@ -278,6 +289,7 @@ variables:
   local_manual_temperature: !input manual_temperature
   local_manual_override_timer: !input manual_override_timer
   local_room_calendar: !input room_calendar
+  local_room_calendar_separator: !input room_calendar_separator ##### GdM
   local_setting_reason: !input setting_reason
   local_room_occupancy_sensors: !input room_occupancy_sensors
   local_unoccupancy_timer: !input unoccupancy_timer
@@ -940,7 +952,7 @@ action:
               - conditions:
                   - condition: template
                     value_template: >-
-                      {{ not current_event.description.split('#') | count >= 3 }}
+                      {{ not current_event.description.split(local_room_calendar_separator) | count >= 3 }}
                 sequence:
                   - service: input_number.set_value
                     data:
@@ -961,7 +973,7 @@ action:
               # ACTION[5].CHOOSE[4].CONDITION[0].CHOOSE[1]. If temperature field is not a number
               - conditions:
                   - condition: template
-                    value_template: "{{ not current_event.description.split('#')[1] | is_number }}"
+                    value_template: "{{ not current_event.description.split(local_room_calendar_separator)[1] | is_number }}"
                 sequence:
                   - service: input_number.set_value
                     data:
@@ -982,7 +994,7 @@ action:
               # ACTION[5].CHOOSE[4].CONDITION[0].CHOOSE[2].If specified temperature is too low
               - conditions:
                   - condition: template
-                    value_template: "{{ not current_event.description.split('#')[1] | float(0) >= local_minimum_thermostat_temperature }}"
+                    value_template: "{{ not current_event.description.split(local_room_calendar_separator)[1] | float(0) >= local_minimum_thermostat_temperature }}"
                 sequence:
                   - service: input_number.set_value
                     data:
@@ -1003,7 +1015,7 @@ action:
               # ACTION[5].CHOOSE[4].CONDITION[0].CHOOSE[3].If specified temperature is too high
               - conditions:
                   - condition: template
-                    value_template: "{{ not current_event.description.split('#')[1] | float(0) <= local_maximum_thermostat_temperature }}"
+                    value_template: "{{ not current_event.description.split(local_room_calendar_separator)[1] | float(0) <= local_maximum_thermostat_temperature }}"
                 sequence:
                   - service: input_number.set_value
                     data:
@@ -1025,7 +1037,7 @@ action:
             default:
               - service: input_number.set_value
                 data:
-                  value: "{{ current_event.description.split('#')[1] | float(0) }}"
+                  value: "{{ current_event.description.split(local_room_calendar_separator)[1] | float(0) }}"
                 target:
                   entity_id: !input required_temperature
               - service: input_text.set_value
