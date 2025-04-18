@@ -870,7 +870,7 @@ action:
                     {% if state_attr(local_setting_reason, 'max') < 255 %} 
                       {{ "**Error! Setting reason helper max length must be 255**" }}
                     {% else %}
-                      {{ "Set to minimum temperature " + local_minimum_thermostat_temperature | round(1) + " because a door or window is open" }}
+                      {{ "Set to minimum temperature " + local_minimum_thermostat_temperature | round(1) | string + " because a door or window is open" }}
                     {% endif %}
                 target:
                   entity_id: !input setting_reason
@@ -914,7 +914,7 @@ action:
                       {% if state_attr(local_setting_reason, 'max') < 255 %} 
                         {{ "**Error! Setting reason helper max length must be 255**" }}
                       {% else %}
-                        {{ "Set to background temperature " + local_background_temperature | round(1) + " because the room is unoccupied" }}
+                        {{ "Set to background temperature " + local_background_temperature | round(1) | string + " because the room is unoccupied" }}
                       {% endif %}
                   target:
                     entity_id: !input setting_reason
@@ -1046,7 +1046,7 @@ action:
                     {% if state_attr(local_setting_reason, 'max') < 255 %} 
                       {{ "**Error! Setting reason helper max length must be 255**" }}
                     {% else %}
-                      {{ "Set to " + states(local_required_temperature) + " by calendar event '" + current_event.summary | trim + "' until " + as_timestamp(current_event.end) |  timestamp_custom('%a %d %b %Y at %H:%M') + "."  }}
+                      {{ "Set to " + states(local_required_temperature) | round(1) | string + " by calendar event '" + current_event.summary | trim + "' until " + as_timestamp(current_event.end) |  timestamp_custom('%a %d %b %Y at %H:%M') + "."  }}
                     {% endif %}
                 target:
                   entity_id: !input setting_reason
