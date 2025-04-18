@@ -1069,7 +1069,7 @@ action:
                   {{ "**Error! Setting reason helper max length must be 255**" }}
                 {% else %}
                   {% if any_future_event %}
-                  {{ "Set to background temperature, " +  local_background_temperature | round(1) | string + ", because nothing is scheduled. The next event is '" + next_event.summary + "' " + as_timestamp(next_event.start) | timestamp_custom('on %a %d %b %Y at %H:%M', false) }}
+                  {{ "Set to background temperature, " +  local_background_temperature | round(1) | string + ", because nothing is scheduled. The next event is '" + next_event.summary + "' " + as_timestamp(next_event.start) | timestamp_custom('on %a %d %b %Y at %H:%M') }}
                   {% else %}
                   {{ "Set to background temperature, " +  local_background_temperature | round(1) | string + ", because nothing is scheduled. There are no events scheduled in the next 24 hours." }}
                   {% endif %}
